@@ -42,3 +42,4 @@ Yes, simply move a panel to the right hand column to have it not show up on your
 Because you take their money.
 
 Like this
+![image](https://user-images.githubusercontent.com/8955690/69822559-948f3500-11fe-11ea-9c7a-5016b574376b.png)
