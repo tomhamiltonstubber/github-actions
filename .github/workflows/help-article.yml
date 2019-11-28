@@ -20,9 +20,7 @@ jobs:
     - name: Install dependencies
       run: pip install -r requirements.txt
 
-    - name: Run script
-      run: python ./create_help_article.py ...context.issue
-      env:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
+    - uses: actions/github-script@0.3.0
       with:
-        context: ...context
+        github-token: ${{secrets.GITHUB_TOKEN}}
+        script: python ./create_help_article.py ...context.issue
