@@ -21,6 +21,6 @@ jobs:
       run: pip install -r requirements.txt
 
     - name: Run script
-      run: python ./scripts/create_help_article ...context.issue
+      run: python ./create_help_article.py ...context.issue
       env:
         github-token: ${{ secrets.GITHUB_TOKEN }}
