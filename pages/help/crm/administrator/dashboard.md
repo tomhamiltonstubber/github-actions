@@ -42,4 +42,4 @@ Yes, simply move a panel to the right hand column to have it not show up on your
 Because you take their money.
 
 Like this
-{{ blog_image('/assets/help/dashboard-fexbul.png') }}
+{{ blog_image('theme/assets/assets/help/dashboard-yqzqdw.png') }}
