@@ -2,12 +2,12 @@
 name: New help entry
 about: New entry for our help site
 title: ''
-labels: ''
+labels: 'documentation'
 assignees: ''
 
 ---
 
 URL Path:
-_Include the full URL path. e.g `crm/help/administrator/what-is-an-administrator/`_
+Include the URL path. e.g `/crm/help/administrator/what-is-an-administrator/`
 Title:
-Content (Can include pics):
+Content:
