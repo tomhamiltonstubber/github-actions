@@ -37,3 +37,9 @@ To edit the panels on your dashboard simply move the sections from the right sid
 ## Can I remove panels from my dashboard/reset my dashboad?
 
 Yes, simply move a panel to the right hand column to have it not show up on your dashboard. If at any time you wish to reset your dashboard to the default, simply click 'Reset Dashboard' on the Configure Dashboard page.
+## Why don't my tutors like me?
+
+Because you take their money.
+
+Like this
+{{ blog_image('theme/assets/assets/help/dashboard-bzjtck.png') }}
