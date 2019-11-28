@@ -1,0 +1,12 @@
+*.py[cod]
+/node_modules/
+/dist/
+/env/
+/.vscode/
+_site
+.sass-cache
+.idea
+Gemfile.lock
+/.github_changelog_generator
+/messagebird-prices.json
+/mung.py

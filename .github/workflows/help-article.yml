@@ -1,0 +1,26 @@
+name: Help Article
+
+on:
+  issues:
+    types: [opened, edited]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@master
+
+    - name: Set up Python 3.7
+      uses: actions/setup-python@v1
+      with:
+        python-version: 3.7
+
+    - name: Install dependencies
+      run: pip install -r requirements.txt
+
+    - name: Run script
+      run: python ./scripts/create_help_article ...context.issue
+      env:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
