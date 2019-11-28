@@ -66,8 +66,8 @@ class HelpArticleCreator:
             page_name = re.search('Page:(.*)', issue_content).group(1).strip()
             title = re.search('Title:(.*)', issue_content).group(1).strip()
             body = re.search('Content:(.*)', issue_content, re.DOTALL).group(1).strip()
-        except AttributeError:
-            print('Error parsing template.')
+        except AttributeError as e:
+            print('Error parsing template. %s' % e)
             return
         pages = glob.glob(f'pages/help/**/**/{page_name}.md', recursive=True)
         assert pages, f'Page "{page_name}" cannot be found.'
@@ -80,29 +80,31 @@ class HelpArticleCreator:
         new_content = old_content + f'\n## {title}\n\n{body}'
 
         self._add_to_git(file_path=page_path, content=new_content)
-        return page_path, img_paths
 
     def get_attr(self, term, body, dotall=False):
         try:
             return re.search(term, body, flags=[re.DOTALL] if dotall else 0).group(1).strip()
         except AttributeError:
             print(f"Couldn't find term '{term}' in body")
+            raise
 
     def create_new_page(self):
         issue_content = self.issue.body
         try:
             page_name = self.get_attr('Page:(.*)', issue_content)
+            category = self.get_attr('Category:(.*)', issue_content)
             title = self.get_attr('Title:(.*)', issue_content)
             body = self.get_attr('Content:(.*)', issue_content, re.DOTALL)
             alt = self.get_attr('Alternative tags:(.*)', issue_content)
             related_1 = self.get_attr('Related Post 1:(.*)', issue_content)
             related_2 = self.get_attr('Related Post 2:(.*)', issue_content)
-        except AttributeError:
-            print('Error parsing template.')
+        except AttributeError as e:
+            print('Error parsing template. %s' % e)
             return
-        pages = glob.glob(f'pages/help/**/**/{page_name}.md', recursive=True)
-        assert pages, f'Page "{page_name}" cannot be found.'
-        page_path = pages[0]
+
+        pages = glob.glob(f'pages/help/**/{category}/*')
+        assert pages, f'Category {category} does not exist.'
+        new_file_path = f'{pages[0].split(category)[0]}{category}{page_name}.md'
 
         body, img_paths = self.dl_images(page_name, body)
 
@@ -114,8 +116,7 @@ class HelpArticleCreator:
             content=body
         )
 
-        self._add_to_git(file_path=page_path, content=new_content)
-        return page_path, img_paths
+        self._add_to_git(file_path=new_file_path, content=new_content)
 
     def _get_create_branch(self):
         # Creating new branch if needs be
