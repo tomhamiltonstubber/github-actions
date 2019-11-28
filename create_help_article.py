@@ -1,5 +1,5 @@
 import argparse
-import github
+# import github
 
 
 def run(issue_number):

@@ -12,15 +12,21 @@ jobs:
     steps:
     - uses: actions/checkout@master
 
-    - name: Set up Python 3.7
-      uses: actions/setup-python@v1
-      with:
-        python-version: 3.7
+#    - name: Set up Python 3.7
+#      uses: actions/setup-python@v1
+#      with:
+#        python-version: 3.7
 
-    - name: Install dependencies
-      run: pip install -r requirements.txt
+#    - name: Install dependencies
+#      run: pip install -r requirements.txt
 
-    - uses: actions/github-script@0.3.0
-      with:
-        github-token: ${{secrets.GITHUB_TOKEN}}
-        script: python ./create_help_article.py ...context.issue
+    - name: Print context
+      run: |
+        echo "${{ github.event.issue.body }}"
+        echo "${{ github.event.issue.number }}"
+
+#    - name: Run script
+#      run: python ./create_help_article.py "${{ github.event.issue.number }}"
+#      env:
+#        github-token: ${{ secrets.GITHUB_TOKEN }}
+#        issue_number: ${{ {{ github.event.number }}
