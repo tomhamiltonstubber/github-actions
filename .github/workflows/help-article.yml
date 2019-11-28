@@ -24,3 +24,5 @@ jobs:
       run: python ./create_help_article.py ...context.issue
       env:
         github-token: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        context: ...context
