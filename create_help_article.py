@@ -4,7 +4,6 @@ import os
 import random
 import re
 import string
-from base64 import b64encode
 
 import requests
 
@@ -14,15 +13,19 @@ MD_IMAGE_REGEX = re.compile('(?:(!\[.*?\])\((.*?)\))')
 BLOG_IMAGE_TMP = "{{ blog_image('%s') }}"
 NEW_FILE_TEMPLATE = """
 ---
-title: {title}
+title: {page_title}
 order: {order}
-alt: {alt_tags}
+alt: {alt}
 related_posts:
   - {related_1}
   - {related_2}
 ---
 {content}
 """
+
+
+class TemplateError(RuntimeError):
+    pass
 
 
 class HelpArticleCreator:
@@ -62,13 +65,9 @@ class HelpArticleCreator:
 
     def create_new_entry(self):
         issue_content = self.issue.body
-        try:
-            page_name = re.search('Page:(.*)', issue_content).group(1).strip()
-            title = re.search('Title:(.*)', issue_content).group(1).strip()
-            body = re.search('Content:(.*)', issue_content, re.DOTALL).group(1).strip()
-        except AttributeError as e:
-            print('Error parsing template. %s' % e)
-            return
+        page_name = self.get_attr('Page:(.*)', issue_content)
+        title = self.get_attr('Title:(.*)', issue_content)
+        body = self.get_attr('Content:(.*)', issue_content, True)
         pages = glob.glob(f'pages/help/**/**/{page_name}.md', recursive=True)
         assert pages, f'Page "{page_name}" cannot be found.'
         page_path = pages[0]
@@ -81,39 +80,38 @@ class HelpArticleCreator:
 
         self._add_to_git(file_path=page_path, content=new_content)
 
-    def get_attr(self, term, body, dotall=False):
+    @staticmethod
+    def get_attr(term, body, dotall=False):
         try:
-            return re.search(term, body, flags=[re.DOTALL] if dotall else 0).group(1).strip()
-        except AttributeError:
-            print(f"Couldn't find term '{term}' in body")
-            raise
+            return re.search(term, body, re.DOTALL if dotall else 0).group(1).strip()
+        except (AttributeError, TypeError) as e:
+            raise TemplateError(f'Cannot find or parse term "{term}" in issue. ({e})')
 
     def create_new_page(self):
         issue_content = self.issue.body
-        try:
-            page_name = self.get_attr('Page:(.*)', issue_content)
-            category = self.get_attr('Category:(.*)', issue_content)
-            title = self.get_attr('Title:(.*)', issue_content)
-            body = self.get_attr('Content:(.*)', issue_content, re.DOTALL)
-            alt = self.get_attr('Alternative tags:(.*)', issue_content)
-            related_1 = self.get_attr('Related Post 1:(.*)', issue_content)
-            related_2 = self.get_attr('Related Post 2:(.*)', issue_content)
-        except AttributeError as e:
-            print('Error parsing template. %s' % e)
-            return
+        page_name = self.get_attr('Page:(.*)', issue_content)
+        category = self.get_attr('Category:(.*)', issue_content)
+        title = self.get_attr('Title:(.*)', issue_content)
+        body = self.get_attr('Content:(.*)', issue_content, True)
+        order = self.get_attr('Order2:(.*)', issue_content)
+        alt = self.get_attr('Alternative tags:(.*)', issue_content)
+        related_1 = self.get_attr('Related Post 1:(.*)', issue_content)
+        related_2 = self.get_attr('Related Post 2:(.*)', issue_content)
 
+        page_name_slug = page_name.lower().replace(' ', '-').replace('?', '')
         pages = glob.glob(f'pages/help/**/{category}/*')
         assert pages, f'Category {category} does not exist.'
-        new_file_path = f'{pages[0].split(category)[0]}{category}{page_name}.md'
+        new_file_path = f'{pages[0].split(category)[0]}{category}/{page_name_slug}.md'
 
-        body, img_paths = self.dl_images(page_name, body)
+        body, img_paths = self.dl_images(page_name_slug, body)
 
         new_content = NEW_FILE_TEMPLATE.format(
-            title=title,
+            page_title=page_name,
             alt=alt,
             related_1=related_1,
             related_2=related_2,
-            content=body
+            order=order,
+            content=f'## {title}\n\n{body}'
         )
 
         self._add_to_git(file_path=new_file_path, content=new_content)
